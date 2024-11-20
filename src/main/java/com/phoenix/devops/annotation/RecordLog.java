@@ -19,7 +19,7 @@ public @interface RecordLog {
     Class<? extends ContentParser> parseclass() default DefaultContentParse.class;
 
     // 查询数据库所调用的class文件 selectById方法所在的Service类
-    Class<?> serviceclass() default IService.class;
+    Class<? extends IService> serviceclass() default IService.class;
 
     // 是否需要比较新旧数据
     boolean needDefaultCompare() default false;

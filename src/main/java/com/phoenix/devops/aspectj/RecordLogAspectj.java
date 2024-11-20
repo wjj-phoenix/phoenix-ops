@@ -18,7 +18,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -77,8 +76,8 @@ public class RecordLogAspectj {
         // 创建人信息
         changeRecord.setChangeTime(LocalDateTime.now());
         // 操作账户
-        String account = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info("操作用户: {}", account);
+        // String account = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // log.info("操作用户: {}", account);
 
         ContentParser contentParser = applicationContext.getBean(operateLog.parseclass());
         Object object = contentParser.getResult(joinPoint, operateLog, operateLog.primaryKey());
