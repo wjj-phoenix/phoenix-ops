@@ -1,7 +1,5 @@
 package com.phoenix.devops.configuration;
 
-import com.phoenix.devops.monitor.LoggerApplicationInfoPrinter;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -10,9 +8,4 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ILoggerConfiguration {
-    // 打印应用监控信息
-    @Bean
-    public LoggerApplicationInfoPrinter easyLogApplicationInfoPrinter() {
-        return new LoggerApplicationInfoPrinter();
-    }
 }

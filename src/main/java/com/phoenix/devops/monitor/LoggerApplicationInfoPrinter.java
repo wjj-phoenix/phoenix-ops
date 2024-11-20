@@ -7,6 +7,7 @@ import org.springframework.boot.availability.ReadinessState;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.stereotype.Component;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
@@ -18,6 +19,7 @@ import java.util.Optional;
  * 打印应用相关上下文信息
  */
 @Slf4j
+@Component
 public class LoggerApplicationInfoPrinter implements ApplicationListener<AvailabilityChangeEvent<ReadinessState>> {
     @Value("${spring.application.name}")
     private String applicationName;
