@@ -21,7 +21,7 @@ import java.util.Objects;
  * @since 2024-11-21
  */
 @Slf4j
-@RestControllerAdvice(basePackages = {"com.phoenix.scaffold.controller"})
+@RestControllerAdvice(basePackages = {"com.phoenix.devops.controller"})
 public class IResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, @NonNull MethodParameter parameter, @NonNull MediaType type, @NonNull Class<? extends HttpMessageConverter<?>> converterType, @NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response) {

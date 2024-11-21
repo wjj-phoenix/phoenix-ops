@@ -4,10 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.phoenix.devops.common.SelectCommon;
 import com.phoenix.devops.entity.SysRole;
 import com.phoenix.devops.entity.SysRoleMenu;
-import com.phoenix.devops.lang.IPage;
 import com.phoenix.devops.mapper.SysRoleMapper;
 import com.phoenix.devops.model.vo.SysRoleVO;
 import com.phoenix.devops.service.ISysRoleMenuService;
@@ -49,12 +47,6 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                         .leftJoin(SYS_ACCOUNT_ROLE).on(SYS_ACCOUNT_ROLE.ROLE_ID.eq(SYS_ROLE.ID))
                         .where(SYS_ACCOUNT_ROLE.ACCOUNT_ID.eq(accountId))
         );
-    }
-
-    @Override
-    public IPage<SysRole> fetchAllRolesByCondition(Integer page, Integer limit, String condition) {
-        QueryWrapper wrapper = QueryWrapper.create().select(SYS_ROLE.DEFAULT_COLUMNS).from(SYS_ROLE);
-        return new IPage<>(new SelectCommon<SysRole>().findAll(page, limit, condition, mapper, wrapper));
     }
 
     @Override

@@ -1,95 +1,65 @@
 package com.phoenix.devops.controller;
 
-import com.mybatisflex.core.paginate.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.phoenix.devops.entity.SysAccount;
+import com.phoenix.devops.lang.IPage;
+import com.phoenix.devops.model.vo.SysAccountVO;
 import com.phoenix.devops.service.ISysAccountService;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.annotation.Resource;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 /**
- *  控制层。
+ * 控制层。
  *
  * @author wjj-phoenix
  * @since 2024-11-20
  */
 @RestController
-@RequestMapping("/sysAccount")
+@RequestMapping("/account")
 public class SysAccountController {
 
-    @Autowired
-    private ISysAccountService iSysAccountService;
+    @Resource
+    private ISysAccountService service;
 
-    /**
-     * 添加。
-     *
-     * @param sysAccount 
-     * @return {@code true} 添加成功，{@code false} 添加失败
-     */
-    @PostMapping("save")
-    public boolean save(@RequestBody SysAccount sysAccount) {
-        return iSysAccountService.save(sysAccount);
+    @PostMapping()
+    public Long save(@Validated @RequestBody SysAccountVO accountVO) {
+        return service.addSysAccount(accountVO);
     }
 
-    /**
-     * 根据主键删除。
-     *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
-     */
-    @DeleteMapping("remove/{id}")
-    public boolean remove(@PathVariable Long id) {
-        return iSysAccountService.removeById(id);
+    @DeleteMapping()
+    public boolean remove(@RequestBody Set<Long> ids) {
+        return service.delSysAccount(ids);
     }
 
-    /**
-     * 根据主键更新。
-     *
-     * @param sysAccount 
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    public boolean update(@RequestBody SysAccount sysAccount) {
-        return iSysAccountService.updateById(sysAccount);
+    @PutMapping("/{id}")
+    public boolean update(@PathVariable Long id, @Validated @RequestBody SysAccountVO accountVO) {
+        return service.modSysAccount(id, accountVO);
     }
 
-    /**
-     * 查询所有。
-     *
-     * @return 所有数据
-     */
-    @GetMapping("list")
-    public List<SysAccount> list() {
-        return iSysAccountService.list();
+    @GetMapping("/info")
+    public SysAccount getInfo(@RequestParam String username) {
+        return service.fetchAccountByUsername(username);
     }
 
-    /**
-     * 根据主键获取详细信息。
-     *
-     * @param id 主键
-     * @return 详情
-     */
-    @GetMapping("getInfo/{id}")
-    public SysAccount getInfo(@PathVariable Long id) {
-        return iSysAccountService.getById(id);
-    }
-
-    /**
-     * 分页查询。
-     *
-     * @param page 分页对象
-     * @return 分页对象
-     */
-    @GetMapping("page")
-    public Page<SysAccount> page(Page<SysAccount> page) {
-        return iSysAccountService.page(page);
+    @GetMapping()
+    @Operation(summary = "分页查询用户信息",
+            description = "根据条件【条件可有可无】分页查询用户信息",
+            parameters = {
+                    @Parameter(name = "pageNum", description = "页码"),
+                    @Parameter(name = "pageSize", description = "每页大小"),
+                    @Parameter(name = "condition", description = "条件")
+            }
+    )
+    public IPage<SysAccount> page(
+            @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
+            @RequestParam(value = "condition", defaultValue = "", required = false) String condition
+    ) {
+        return service.fetchAllAccountsByCondition(pageNum, pageSize, condition);
     }
 
 }

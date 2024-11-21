@@ -2,9 +2,7 @@ package com.phoenix.devops.service;
 
 import com.mybatisflex.core.service.IService;
 import com.phoenix.devops.entity.SysRole;
-import com.phoenix.devops.lang.IPage;
 import com.phoenix.devops.model.vo.SysRoleVO;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Set;
@@ -30,16 +28,6 @@ public interface ISysRoleService extends IService<SysRole> {
      * @return 角色列表
      */
     List<SysRole> fetchSysRolesByAccountId(Long accountId);
-
-    /**
-     * 根据条件分页查询角色信息
-     *
-     * @param page      页码
-     * @param limit     每页大小
-     * @param condition 条件
-     * @return 分页数据
-     */
-    IPage<SysRole> fetchAllRolesByCondition(@NotNull(message = "页码不能为空!") Integer page, @NotNull(message = "每页大小不能为空!") Integer limit, String condition);
 
     /**
      * 根据用户名查询角色信息

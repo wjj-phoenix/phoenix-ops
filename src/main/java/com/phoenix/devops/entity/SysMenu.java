@@ -4,6 +4,7 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+import com.phoenix.devops.utils.TreeUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 实体类。
@@ -25,7 +27,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("sys_menu")
-public class SysMenu implements Serializable {
+public class SysMenu implements Serializable, TreeUtils.TreeNode<Long, SysMenu> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -109,4 +111,18 @@ public class SysMenu implements Serializable {
     @Column(ignore = true)
     private List<SysMenu> children;
 
+    @Override
+    public Long id() {
+        return this.getId();
+    }
+
+    @Override
+    public Long parentId() {
+        return this.parentId;
+    }
+
+    @Override
+    public boolean root() {
+        return Objects.equals(this.parentId, 0L);
+    }
 }
