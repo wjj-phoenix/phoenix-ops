@@ -5,10 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,7 +25,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("sys_account")
-public class SysAccount implements Serializable /*, UserDetails */ {
+public class SysAccount implements Serializable, UserDetails {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -106,7 +109,7 @@ public class SysAccount implements Serializable /*, UserDetails */ {
     /**
      * 用户所具有的权限
      */
-   /*  @Column(ignore = true)
+    @Column(ignore = true)
     private Collection<? extends GrantedAuthority> authorities;
 
     @Override
@@ -132,5 +135,5 @@ public class SysAccount implements Serializable /*, UserDetails */ {
     @Override
     public boolean isEnabled() {
         return enable == 1;
-    } */
+    }
 }

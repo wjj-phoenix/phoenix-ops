@@ -14,6 +14,7 @@ import com.phoenix.devops.service.ISysAccountRoleService;
 import com.phoenix.devops.service.ISysAccountService;
 import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -32,8 +33,8 @@ import static com.phoenix.devops.entity.table.SysAccountTableDef.SYS_ACCOUNT;
 @Service
 @CacheConfig(cacheNames = "account")
 public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAccount> implements ISysAccountService {
-    // @Resource
-    // private PasswordEncoder passwordEncoder;
+    @Resource
+    private PasswordEncoder passwordEncoder;
 
     @Resource
     private ISysAccountRoleService accountRoleService;
@@ -96,15 +97,15 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     public Boolean modSysAccountPassword(Long id, PasswordVO passwordVO) {
         SysAccount account = this.getById(id);
         Assert.notNull(account, "该账户不存在");
-        /* if (!passwordEncoder.matches(passwordVO.getOldPassword(), account.getPassword())) {
+        if (!passwordEncoder.matches(passwordVO.getOldPassword(), account.getPassword())) {
             throw new IllegalArgumentException("旧密码不正确");
-        } */
+        }
         if (!passwordVO.getNewPassword().equals(passwordVO.getConfirmPassword())) {
             throw new IllegalArgumentException("两次输入的密码不一致");
         }
-        /* if (!this.updateById(SysAccount.builder().id(id).password(passwordEncoder.encode(passwordVO.getNewPassword())).build())) {
+        if (!this.updateById(SysAccount.builder().id(id).password(passwordEncoder.encode(passwordVO.getNewPassword())).build())) {
             throw new IllegalArgumentException("修改密码失败");
-        } */
+        }
         return true;
     }
 }
