@@ -1,5 +1,6 @@
 package com.phoenix.devops.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
@@ -92,6 +93,7 @@ public class SysOperationLog implements Serializable {
     /**
      * 创建时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime operatedTime;
 
 }
