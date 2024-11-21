@@ -1,6 +1,8 @@
 package com.phoenix.devops.model.vo;
 
+import com.phoenix.devops.annotation.Unique;
 import com.phoenix.devops.model.Add;
+import com.phoenix.devops.service.ISysAccountService;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,6 +29,7 @@ public class SysAccountVO implements Serializable {
      */
     @Schema(description = "用户名")
     @NotBlank(message = "用户名不允许为空", groups = {Add.class})
+    @Unique(field = "username", service = ISysAccountService.class, message = "用户名已存在")
     private String username;
 
     /**
