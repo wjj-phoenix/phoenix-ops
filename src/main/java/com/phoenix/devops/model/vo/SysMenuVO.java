@@ -1,5 +1,7 @@
 package com.phoenix.devops.model.vo;
 
+import com.phoenix.devops.annotation.UnionUnique;
+import com.phoenix.devops.annotation.UnionUniques;
 import com.phoenix.devops.annotation.Unique;
 import com.phoenix.devops.service.ISysMenuService;
 import lombok.AllArgsConstructor;
@@ -16,8 +18,13 @@ import java.io.Serializable;
  */
 @Data
 @Builder
+
 @NoArgsConstructor
 @AllArgsConstructor
+@UnionUniques({
+        @UnionUnique(service = ISysMenuService.class, fields = {"url", "method"}, message = "菜单请求地址和请求方式组合已存在"),
+        @UnionUnique(service = ISysMenuService.class, fields = {"icon", "type"}, message = "菜单图标组合已存在")
+})
 public class SysMenuVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -41,7 +48,7 @@ public class SysMenuVO implements Serializable {
     /**
      * 权限编码
      */
-    @Unique(field = "code",service = ISysMenuService.class, message = "菜单编码已存在")
+    @Unique(field = "code", service = ISysMenuService.class, message = "菜单编码已存在")
     private String code;
 
     /**

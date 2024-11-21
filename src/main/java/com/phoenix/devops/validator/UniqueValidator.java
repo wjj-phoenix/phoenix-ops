@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
+ * 单一字段唯一性校验
+ *
  * @author wjj-phoenix
  * @since 2024-11-20
  * ConstraintValidator接口使用了泛型，需要指定两个参数：
@@ -45,7 +47,6 @@ public class UniqueValidator implements ConstraintValidator<Unique, String> {
     public boolean isValid(String str, ConstraintValidatorContext constraintValidatorContext) {
         String wrapperSql = String.format("%s=?", unique.field());
         IService<?> service = applicationContext.getBean(unique.service());
-        long count = service.count(QueryWrapper.create().where(wrapperSql, str));
-        return count <= 0;
+        return !service.exists(QueryWrapper.create().where(wrapperSql, str));
     }
 }

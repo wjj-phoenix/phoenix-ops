@@ -31,7 +31,7 @@ public @interface Unique {
      *
      * @return str
      */
-    String message() default "";
+    String message();
 
     Class<?>[] groups() default {};
 
