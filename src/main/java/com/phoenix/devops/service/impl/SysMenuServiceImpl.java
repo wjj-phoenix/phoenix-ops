@@ -5,7 +5,9 @@ import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryMethods;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.phoenix.devops.common.SelectCommon;
 import com.phoenix.devops.entity.SysMenu;
+import com.phoenix.devops.lang.IPage;
 import com.phoenix.devops.mapper.SysMenuMapper;
 import com.phoenix.devops.model.vo.SysMenuVO;
 import com.phoenix.devops.service.ISysMenuService;
@@ -37,6 +39,12 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     public List<SysMenu> fetchAllSysMenus() {
         return this.list(QueryWrapper.create().select(SYS_MENU.DEFAULT_COLUMNS).from(SYS_MENU));
+    }
+
+    @Override
+    public IPage<SysMenu> fetchAllRolesByCondition(Integer page, Integer limit, String condition) {
+        QueryWrapper wrapper = QueryWrapper.create().select(SYS_MENU.DEFAULT_COLUMNS).from(SYS_MENU);
+        return new IPage<>(new SelectCommon<SysMenu>().findAll(page, limit, condition, mapper, wrapper));
     }
 
     @Override
@@ -96,12 +104,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     public Long addSysMenu(SysMenuVO menuVO) {
         SysMenu menu = BeanUtil.toBean(menuVO, SysMenu.class);
-        /* if (!this.save(menu)) {
+        if (!this.save(menu)) {
             throw new IllegalArgumentException("添加菜单项失败");
         }
-         return menu.getId();
-        */
-        return 0L;
+        return menu.getId();
     }
 
     @Override

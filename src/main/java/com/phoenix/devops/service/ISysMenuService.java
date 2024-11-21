@@ -2,6 +2,7 @@ package com.phoenix.devops.service;
 
 import com.mybatisflex.core.service.IService;
 import com.phoenix.devops.entity.SysMenu;
+import com.phoenix.devops.lang.IPage;
 import com.phoenix.devops.model.vo.SysMenuVO;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,6 +22,16 @@ public interface ISysMenuService extends IService<SysMenu> {
      * @return 菜单项列表
      */
     List<SysMenu> fetchAllSysMenus();
+
+    /**
+     * 根据条件分页查询菜单信息
+     *
+     * @param page      页码
+     * @param limit     每页大小
+     * @param condition 条件
+     * @return 分页数据
+     */
+    IPage<SysMenu> fetchAllRolesByCondition(@NotNull(message = "页码不能为空!") Integer page, @NotNull(message = "每页大小不能为空!") Integer limit, String condition);
 
     /**
      * 根据父ID查询其子菜单项

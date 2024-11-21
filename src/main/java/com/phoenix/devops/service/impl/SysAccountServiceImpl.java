@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.phoenix.devops.common.SelectCommon;
 import com.phoenix.devops.entity.SysAccount;
 import com.phoenix.devops.entity.SysAccountRole;
 import com.phoenix.devops.lang.IPage;
@@ -50,7 +51,8 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
 
     @Override
     public IPage<SysAccount> fetchAllAccountsByCondition(Integer page, Integer limit, String condition) {
-        return null;
+        QueryWrapper wrapper = QueryWrapper.create().select(SYS_ACCOUNT.NOT_PASSWORD_COLUMNS).from(SYS_ACCOUNT);
+        return new IPage<>(new SelectCommon<SysAccount>().findAll(page, limit, condition, mapper, wrapper));
     }
 
     @Override
