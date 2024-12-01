@@ -142,8 +142,6 @@ public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
         return ResponseModel.success();
     }
 
-    private static FrequencyLimitHandler limitHandler;
-
     protected void afterValidateFail(CaptchaVO data) {
 
     }
