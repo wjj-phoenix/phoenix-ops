@@ -38,7 +38,7 @@ public class SysMenuController {
     }
 
     @GetMapping()
-    public List<SysMenu> list() {
+    public List<SysMenu> list(@RequestParam(defaultValue = "", required = false) String condition) {
         return service.fetchAllSysMenus();
     }
 

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
  * @since 2024-11-21
  * 树形结构工具类
  */
-public class TreeUtils {
+public final class TreeUtils {
 
     /**
      * 根据所有树节点列表，生成含有所有树形结构的多叉树列表, 列表中每个元素都是顶层根节点

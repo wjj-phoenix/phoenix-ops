@@ -26,6 +26,7 @@ public final class Constant {
         //  1. 整个请求映射地址
         //  2. 可接受**通配符
         WHITES.add(Pair.of(HttpMethod.GET, "/**"));
+        WHITES.add(Pair.of(HttpMethod.POST, "/**"));
         WHITES.add(Pair.of(HttpMethod.POST, "/login"));
         WHITES.add(Pair.of(HttpMethod.POST, "/logout"));
         WHITES.add(Pair.of(HttpMethod.GET, "/verify"));
