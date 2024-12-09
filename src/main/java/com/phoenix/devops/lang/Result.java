@@ -39,7 +39,7 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> success(T data) {
-        return new Result<T>(200, "success", data);
+        return new Result<>(200, "success", data);
     }
 
     public static <T> Result<T> failure(RespEnum resp) {

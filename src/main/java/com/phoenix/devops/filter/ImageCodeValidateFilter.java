@@ -1,9 +1,6 @@
 package com.phoenix.devops.filter;
 
-import cn.hutool.core.util.StrUtil;
-import com.phoenix.devops.enums.RespEnum;
 import com.phoenix.devops.fastmap.IFastMap;
-import com.phoenix.devops.utils.ResponseUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,7 +30,7 @@ public class ImageCodeValidateFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
-        // 检验登录接口的验证码
+        /* // 检验登录接口的验证码
         if (LOGIN_PATH_REQUEST_MATCHER.matches(request)) {
             // 请求中的验证码
             String captchaCode = request.getParameter(CAPTCHA_CODE_PARAM_NAME);
@@ -59,6 +56,7 @@ public class ImageCodeValidateFilter extends OncePerRequestFilter {
         } else {
             // 非登录接口放行
             chain.doFilter(request, response);
-        }
+        } */
+        chain.doFilter(request, response);
     }
 }

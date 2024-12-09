@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -53,8 +54,10 @@ public class SysAuthenticationServiceImpl implements ISysAuthenticationService {
 
     @Override
     public Pair<String, String> login(LoginInfo info, HttpServletResponse response) {
+        log.info("登录输入的请求体: {}", info);
         SysAccount account = accountService.fetchAccountByUsername(info.getUsername());
         Assert.notNull(account, String.format("指定用户【%s】不存在", info.getUsername()));
+        log.info("user: {}", account);
 
         String password = info.getPassword();
 
@@ -107,6 +110,18 @@ public class SysAuthenticationServiceImpl implements ISysAuthenticationService {
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
+    }
+
+    @Override
+    public SysAccount info(Principal principal) {
+        return accountService.fetchSysAccountWithRelationsByUsername(principal.getName());
+    }
+
+    @Override
+    public Long fetchSysAccountIdByUsername(String username) {
+        SysAccount account = accountService.fetchAccountByUsername(username);
+        Assert.notNull(account, String.format("用户名[%s]不存在!", username));
+        return account.getId();
     }
 
     @Override

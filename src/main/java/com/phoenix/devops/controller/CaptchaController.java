@@ -1,7 +1,6 @@
 package com.phoenix.devops.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.phoenix.devops.model.common.ResponseModel;
 import com.phoenix.devops.model.vo.CaptchaVO;
 import com.phoenix.devops.service.ISysCaptchaService;
 import com.phoenix.devops.utils.ServletUtils;
@@ -10,10 +9,8 @@ import jakarta.annotation.Resource;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author wjj-phoenix
@@ -26,16 +23,16 @@ public class CaptchaController {
     private ISysCaptchaService captchaService;
 
     @PermitAll
-    @PostMapping()
+    @GetMapping()
     @Operation(summary = "获得验证码")
     public CaptchaVO get(@NotNull HttpServletRequest request) {
         return captchaService.get();
     }
 
     @PermitAll
-    @PostMapping("/check")
+    @PostMapping()
     @Operation(summary = "校验验证码")
-    public ResponseModel check(@RequestBody CaptchaVO data, HttpServletRequest request) {
+    public CaptchaVO check(@Validated @RequestBody CaptchaVO data, HttpServletRequest request) {
         data.setBrowserInfo(getRemoteId(request));
         return captchaService.check(data);
     }

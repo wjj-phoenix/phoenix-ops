@@ -4,6 +4,7 @@ import lombok.Getter;
 
 /**
  * 底图类型枚举
+ * @author wjj70
  */
 @Getter
 public enum CaptchaBaseMapEnum {
@@ -31,7 +32,7 @@ public enum CaptchaBaseMapEnum {
     private final String codeValue;
     private final String codeDesc;
 
-    private CaptchaBaseMapEnum(String codeValue, String codeDesc) {
+    CaptchaBaseMapEnum(String codeValue, String codeDesc) {
         this.codeValue = codeValue;
         this.codeDesc = codeDesc;
     }
@@ -49,17 +50,6 @@ public enum CaptchaBaseMapEnum {
             }
         }
         return null;
-    }
-
-    /**
-     * 根据codeValue获取描述
-     *
-     * @param codeValue 验证值
-     * @return 描述
-     */
-    public static String getCodeDescByCodeBalue(String codeValue) {
-        CaptchaBaseMapEnum enumItem = parseFromCodeValue(codeValue);
-        return enumItem == null ? "" : enumItem.getCodeDesc();
     }
 
     /**

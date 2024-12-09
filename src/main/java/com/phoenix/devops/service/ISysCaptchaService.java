@@ -2,6 +2,7 @@ package com.phoenix.devops.service;
 
 import com.phoenix.devops.model.common.ResponseModel;
 import com.phoenix.devops.model.vo.CaptchaVO;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author wjj-phoenix
@@ -10,7 +11,7 @@ import com.phoenix.devops.model.vo.CaptchaVO;
 public interface ISysCaptchaService {
     CaptchaVO get();
 
-    ResponseModel check(CaptchaVO var1);
+    CaptchaVO check(@NotNull CaptchaVO var1);
 
     ResponseModel verification(CaptchaVO captchaVO);
 }

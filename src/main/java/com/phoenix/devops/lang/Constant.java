@@ -35,8 +35,4 @@ public final class Constant {
         WHITES.add(Pair.of(HttpMethod.GET, "/swagger-ui/**"));
         WHITES.add(Pair.of(HttpMethod.GET, "/v3/**"));
     }
-
-    public static final String CUSTOM_CACHE_MANAGER = "customizedRedisCacheManager";
-
-    public static final String CUSTOM_CACHE_KEY_GENERATOR = "customizedkKeyGenerator";
 }

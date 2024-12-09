@@ -1,10 +1,13 @@
 package com.phoenix.devops.service;
 
 import cn.hutool.core.lang.Pair;
+import com.phoenix.devops.entity.SysAccount;
 import com.phoenix.devops.model.LoginInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.security.Principal;
 
 /**
  * @author wjj-phoenix
@@ -34,4 +37,14 @@ public interface ISysAuthenticationService extends UserDetailsService {
      * @param response 响应体
      */
     void verify(HttpServletRequest request, HttpServletResponse response);
+
+    /**
+     * 根据认证信息查询用户信息
+     *
+     * @param principal 认证信息
+     * @return 账户信息
+     */
+    SysAccount info(Principal principal);
+
+    Long fetchSysAccountIdByUsername(String username);
 }

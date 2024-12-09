@@ -1,6 +1,8 @@
 package com.phoenix.devops.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
+import com.phoenix.devops.fastmap.IFastMap;
 import com.phoenix.devops.model.common.RepCodeEnum;
 import com.phoenix.devops.model.common.ResponseModel;
 import com.phoenix.devops.model.vo.CaptchaVO;
@@ -10,6 +12,7 @@ import com.phoenix.devops.utils.AESUtil;
 import com.phoenix.devops.utils.ImageUtils;
 import com.phoenix.devops.utils.JsonUtil;
 import com.phoenix.devops.utils.RandomUtils;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -22,13 +25,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 /**
- * Created by raodeming on 2019/12/25.
+ * @author wjj-phoenix
  */
 @Slf4j
 @Service
 public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
+    @Resource
+    private IFastMap<String, String> fastMap;
     protected static final String IMAGE_TYPE_PNG = "png";
 
     protected static int HAN_ZI_SIZE = 25;
@@ -38,7 +44,7 @@ public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
     // 后台二次校验坐标
     protected static String REDIS_SECOND_CAPTCHA_KEY = "RUNNING:CAPTCHA:second-%s";
 
-    protected static String waterMark = "xingyuv";
+    protected static String waterMark = "PHOENIX";
 
     /**
      * 水印字体
@@ -49,12 +55,12 @@ public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
 
     protected static Boolean captchaAesStatus = true;
 
-    protected static int captchaInterferenceOptions = 0;
+    protected static int captchaInterferenceOptions = 1;
 
     @Override
     public CaptchaVO get() {
         // 原生图片
-        BufferedImage originalImage = ImageUtils.getOriginal();
+        BufferedImage originalImage = ImageUtils.fetchOriginalImage();
 
         Assert.notNull(originalImage, "原生图片未初始化成功，请检查路径");
         // 设置水印
@@ -66,63 +72,66 @@ public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
         backgroundGraphics.drawString(waterMark, width - getEnOrChLength(waterMark), height - (HAN_ZI_SIZE / 2) + 7);
 
         // 抠图图片
-        String jigsawImageBase64 = ImageUtils.getSlidingBlock();
-        BufferedImage jigsawImage = ImageUtils.getBase64StrToImage(jigsawImageBase64);
-        Assert.notNull(jigsawImage, "滑动底图未初始化成功，请检查路径");
+        String slidingBlockImageBase64 = ImageUtils.fetchSlidingBlockImage();
+        BufferedImage slidingBlockImage = ImageUtils.base64StrToImage(slidingBlockImageBase64);
+        Assert.notNull(slidingBlockImage, "滑动底图未初始化成功，请检查路径");
 
-        return pictureTemplatesCut(originalImage, jigsawImage, jigsawImageBase64);
+        return pictureTemplatesCut(originalImage, slidingBlockImage, slidingBlockImageBase64);
     }
 
     @Override
-    public ResponseModel check(CaptchaVO captchaVO) {
-        if (captchaVO == null) {
-            return RepCodeEnum.NULL_ERROR.parseError("captchaVO");
-        }
+    public CaptchaVO check(CaptchaVO captchaVO) {
         if (StrUtil.isEmpty(captchaVO.getCaptchaType())) {
-            return RepCodeEnum.NULL_ERROR.parseError("类型");
+            // return RepCodeEnum.NULL_ERROR.parseError("类型");
+            throw new IllegalArgumentException();
         }
         if (StrUtil.isEmpty(captchaVO.getToken())) {
-            return RepCodeEnum.NULL_ERROR.parseError("token");
+            // return RepCodeEnum.NULL_ERROR.parseError("token");
+            throw new IllegalArgumentException();
         }
 
         // 取坐标信息
         String codeKey = String.format(REDIS_CAPTCHA_KEY, captchaVO.getToken());
-        String s = "";
-        PointVO point = null;
-        PointVO point1 = null;
-        String pointJson = null;
+        String pointStr = fastMap.get(codeKey);
+        if (StrUtil.isBlank(pointStr)) {
+            // return ResponseModel.errorMsg(RepCodeEnum.API_CAPTCHA_INVALID);
+            throw new IllegalArgumentException();
+        }
+
+        String pointJson;
+        PointVO point = JsonUtil.parseObject(pointStr, PointVO.class);
+        Assert.notNull(point, "坐标信息为空");
         try {
-            point = JsonUtil.parseObject(s, PointVO.class);
             // aes解密
             pointJson = decrypt(captchaVO.getPointJson(), point.getSecretKey());
-            point1 = JsonUtil.parseObject(pointJson, PointVO.class);
         } catch (Exception e) {
             log.error("验证码坐标解析失败", e);
-            afterValidateFail(captchaVO);
-            return ResponseModel.errorMsg(e.getMessage());
+            // return ResponseModel.errorMsg(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
-        boolean exists = point.x - Integer.parseInt(slipOffset) > point1.x
-                || point1.x > point.x + Integer.parseInt(slipOffset)
-                || point.y != point1.y;
+        PointVO point1 = JsonUtil.parseObject(pointJson, PointVO.class);
+        Assert.notNull(point1, "坐标信息为空");
+        boolean exists = point.x - Integer.parseInt(slipOffset) > point1.x || point1.x > point.x + Integer.parseInt(slipOffset) || point.y != point1.y;
         if (exists) {
-            afterValidateFail(captchaVO);
-            return ResponseModel.errorMsg(RepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
+            // return ResponseModel.errorMsg(RepCodeEnum.API_CAPTCHA_COORDINATE_ERROR);
+            throw new IllegalArgumentException(RepCodeEnum.API_CAPTCHA_COORDINATE_ERROR.getDesc());
         }
         // 校验成功，将信息存入缓存
         String secretKey = point.getSecretKey();
-        String value = null;
+        String value;
         try {
             value = AESUtil.aesEncrypt(captchaVO.getToken().concat("---").concat(pointJson), secretKey);
         } catch (Exception e) {
             log.error("AES加密失败", e);
-            afterValidateFail(captchaVO);
-            return ResponseModel.errorMsg(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
         }
         String secondKey = String.format(REDIS_SECOND_CAPTCHA_KEY, value);
+        log.info("存入缓存 key：{}", secondKey);
+        log.info("存入缓存 token：{}", captchaVO.getToken());
         // CaptchaServiceFactory.getCache(cacheType).set(secondKey, captchaVO.getToken(), EXPIRESIN_THREE);
         captchaVO.setResult(true);
         captchaVO.resetClientFlag();
-        return ResponseModel.successData(captchaVO);
+        return captchaVO;
     }
 
     @Override
@@ -161,123 +170,122 @@ public class DefaultCaptchaServiceImpl implements ISysCaptchaService {
     /**
      * 根据模板切图
      *
-     * @param originalImage     originalImage
-     * @param jigsawImage       jigsawImage
-     * @param jigsawImageBase64 jigsawImageBase64
+     * @param originalImage           originalImage
+     * @param slidingBlockImage       slidingBlockImage
+     * @param slidingBlockImageBase64 jigsawImageBase64
      * @return CaptchaVO
      */
-    public CaptchaVO pictureTemplatesCut(BufferedImage originalImage, BufferedImage jigsawImage, String jigsawImageBase64) {
+    public CaptchaVO pictureTemplatesCut(BufferedImage originalImage, BufferedImage slidingBlockImage, String slidingBlockImageBase64) {
+        int originalWidth = originalImage.getWidth();
+        int originalHeight = originalImage.getHeight();
+        int slidingBlockWidth = slidingBlockImage.getWidth();
+        int slidingBlockHeight = slidingBlockImage.getHeight();
+
+        // 随机生成拼图坐标
+        PointVO point = generateSlidingBlockPoint(originalWidth, originalHeight, slidingBlockWidth, slidingBlockHeight);
+
+        // 生成新的拼图图像
+        BufferedImage newSlidingBlockImage = new BufferedImage(slidingBlockWidth, slidingBlockHeight, slidingBlockImage.getType());
+        Graphics2D graphics = newSlidingBlockImage.createGraphics();
+
+        // 如果需要生成RGB格式，需要做如下配置, Transparency 设置透明
+        newSlidingBlockImage = graphics.getDeviceConfiguration().createCompatibleImage(slidingBlockWidth, slidingBlockHeight, Transparency.TRANSLUCENT);
+
+        int x = point.getX();
+        // 新建的图像根据模板颜色赋值,源图生成遮罩
+        cutByTemplate(originalImage, slidingBlockImage, newSlidingBlockImage, x);
+        if (captchaInterferenceOptions > 0) {
+            int position;
+
+            if (originalWidth - x - 5 > slidingBlockWidth * 2) {
+                // 在原扣图右边插入干扰图
+                position = RandomUtils.randomInt(x + slidingBlockWidth + 5, originalWidth - slidingBlockWidth);
+            } else {
+                // 在原扣图左边插入干扰图
+                position = RandomUtils.randomInt(100, x - slidingBlockWidth - 5);
+            }
+            while (true) {
+                String s = ImageUtils.fetchSlidingBlockImage();
+                if (!slidingBlockImageBase64.equals(s)) {
+                    interferenceByTemplate(originalImage, Objects.requireNonNull(ImageUtils.base64StrToImage(s)), position);
+                    break;
+                }
+            }
+        }
+        if (captchaInterferenceOptions > 1) {
+            while (true) {
+                String s = ImageUtils.fetchSlidingBlockImage();
+                if (!slidingBlockImageBase64.equals(s)) {
+                    Integer randomInt = RandomUtils.randomInt(slidingBlockWidth, 100 - slidingBlockWidth);
+                    interferenceByTemplate(originalImage, Objects.requireNonNull(ImageUtils.base64StrToImage(s)), randomInt);
+                    break;
+                }
+            }
+        }
+
+        int bold = 5;
+        // 设置“抗锯齿”的属性
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setStroke(new BasicStroke(bold, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        graphics.drawImage(newSlidingBlockImage, 0, 0, null);
+        graphics.dispose();
+
+        CaptchaVO dataVO = new CaptchaVO();
         try {
-            CaptchaVO dataVO = new CaptchaVO();
+            // 新建流
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            // 利用ImageIO类提供的write方法，将bi以png图片的数据模式写入流
+            ImageIO.write(newSlidingBlockImage, IMAGE_TYPE_PNG, os);
+            byte[] slidingBlockImages = os.toByteArray();
 
-            int originalWidth = originalImage.getWidth();
-            int originalHeight = originalImage.getHeight();
-            int jigsawWidth = jigsawImage.getWidth();
-            int jigsawHeight = jigsawImage.getHeight();
-
-            // 随机生成拼图坐标
-            PointVO point = generateJigsawPoint(originalWidth, originalHeight, jigsawWidth, jigsawHeight);
-            int x = point.getX();
-
-            // 生成新的拼图图像
-            BufferedImage newJigsawImage = new BufferedImage(jigsawWidth, jigsawHeight, jigsawImage.getType());
-            Graphics2D graphics = newJigsawImage.createGraphics();
-
-            int bold = 5;
-            // 如果需要生成RGB格式，需要做如下配置,Transparency 设置透明
-            newJigsawImage = graphics.getDeviceConfiguration().createCompatibleImage(jigsawWidth, jigsawHeight, Transparency.TRANSLUCENT);
-            // 新建的图像根据模板颜色赋值,源图生成遮罩
-            cutByTemplate(originalImage, jigsawImage, newJigsawImage, x);
-            if (captchaInterferenceOptions > 0) {
-                int position = 0;
-                if (originalWidth - x - 5 > jigsawWidth * 2) {
-                    // 在原扣图右边插入干扰图
-                    position = RandomUtils.getRandomInt(x + jigsawWidth + 5, originalWidth - jigsawWidth);
-                } else {
-                    // 在原扣图左边插入干扰图
-                    position = RandomUtils.getRandomInt(100, x - jigsawWidth - 5);
-                }
-                while (true) {
-                    String s = ImageUtils.getSlidingBlock();
-                    if (!jigsawImageBase64.equals(s)) {
-                        interferenceByTemplate(originalImage, Objects.requireNonNull(ImageUtils.getBase64StrToImage(s)), position);
-                        break;
-                    }
-                }
-            }
-            if (captchaInterferenceOptions > 1) {
-                while (true) {
-                    String s = ImageUtils.getSlidingBlock();
-                    if (!jigsawImageBase64.equals(s)) {
-                        Integer randomInt = RandomUtils.getRandomInt(jigsawWidth, 100 - jigsawWidth);
-                        interferenceByTemplate(originalImage, Objects.requireNonNull(ImageUtils.getBase64StrToImage(s)),
-                                randomInt);
-                        break;
-                    }
-                }
-            }
-
-            // 设置“抗锯齿”的属性
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics.setStroke(new BasicStroke(bold, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
-            graphics.drawImage(newJigsawImage, 0, 0, null);
-            graphics.dispose();
-
-            ByteArrayOutputStream os = new ByteArrayOutputStream();// 新建流。
-            ImageIO.write(newJigsawImage, IMAGE_TYPE_PNG, os);// 利用ImageIO类提供的write方法，将bi以png图片的数据模式写入流。
-            byte[] jigsawImages = os.toByteArray();
-
-            ByteArrayOutputStream oriImagesOs = new ByteArrayOutputStream();// 新建流。
-            ImageIO.write(originalImage, IMAGE_TYPE_PNG, oriImagesOs);// 利用ImageIO类提供的write方法，将bi以jpg图片的数据模式写入流。
+            // 新建流
+            ByteArrayOutputStream oriImagesOs = new ByteArrayOutputStream();
+            // 利用ImageIO类提供的write方法，将bi以jpg图片的数据模式写入流
+            ImageIO.write(originalImage, IMAGE_TYPE_PNG, oriImagesOs);
             byte[] oriCopyImages = oriImagesOs.toByteArray();
             Base64.Encoder encoder = Base64.getEncoder();
             dataVO.setOriginalImageBase64(encoder.encodeToString(oriCopyImages).replaceAll("[\n" + "]", ""));
             // point信息不传到前端，只做后端check校验
             // dataVO.setPoint(point);
-            dataVO.setJigsawImageBase64(encoder.encodeToString(jigsawImages).replaceAll("[\n" + "]", ""));
-            dataVO.setToken(RandomUtils.getUUID());
+            dataVO.setJigsawImageBase64(encoder.encodeToString(slidingBlockImages).replaceAll("[\n" + "]", ""));
+            dataVO.setToken(UUID.randomUUID().toString().replace("-", ""));
             dataVO.setSecretKey(point.getSecretKey());
 
             // 将坐标信息存入redis中
-            // String codeKey = String.format(REDIS_CAPTCHA_KEY, dataVO.getToken());
+            String codeKey = String.format(REDIS_CAPTCHA_KEY, dataVO.getToken());
+            log.info("codeKey: {}", codeKey);
+            log.info("point: {}", JsonUtil.toJSONString(point));
+            fastMap.put(codeKey, JSON.toJSONString(point));
+            fastMap.expire(codeKey, 60 * 1_000L, (key, val) -> fastMap.remove(key));
             // CaptchaServiceFactory.getCache(cacheType).set(codeKey, JsonUtil.toJSONString(point), EXPIRESIN_SECONDS);
-            log.debug("token：{},point:{}", dataVO.getToken(), JsonUtil.toJSONString(point));
-            return dataVO;
+            log.debug("token：{}, point:{}", dataVO.getToken(), JsonUtil.toJSONString(point));
         } catch (Exception e) {
             e.printStackTrace(System.err);
-            return null;
         }
+        return dataVO;
     }
 
     /**
      * 随机生成拼图坐标
      *
-     * @param originalWidth  originalWidth
-     * @param originalHeight originalHeight
-     * @param jigsawWidth    jigsawWidth
-     * @param jigsawHeight   jigsawHeight
+     * @param originalWidth      原图宽度
+     * @param originalHeight     原图高度
+     * @param slidingBlockWidth  滑块宽度
+     * @param slidingBlockHeight 滑块高度
      * @return PointVO
      */
-    private static PointVO generateJigsawPoint(int originalWidth, int originalHeight, int jigsawWidth, int jigsawHeight) {
+    private static PointVO generateSlidingBlockPoint(int originalWidth, int originalHeight, int slidingBlockWidth, int slidingBlockHeight) {
+        int widthDifference = originalWidth - slidingBlockWidth;
+        int heightDifference = originalHeight - slidingBlockHeight;
+
         Random random = new Random();
-        int widthDifference = originalWidth - jigsawWidth;
-        int heightDifference = originalHeight - jigsawHeight;
-        int x, y = 0;
-        if (widthDifference <= 0) {
-            x = 5;
-        } else {
-            x = random.nextInt(originalWidth - jigsawWidth - 100) + 100;
-        }
-        if (heightDifference <= 0) {
-            y = 5;
-        } else {
-            y = random.nextInt(originalHeight - jigsawHeight) + 5;
-        }
+        int x = widthDifference <= 0 ? 5 : random.nextInt(originalWidth - slidingBlockWidth - 100) + 100;
+        int y = heightDifference <= 0 ? 5 : random.nextInt(originalHeight - slidingBlockHeight) + 5;
         String key = null;
         if (captchaAesStatus) {
-            key = AESUtil.getKey();
+            key = AESUtil.fetchKey();
         }
-        return new PointVO(x, y, key);
+        return PointVO.builder().x(x).y(y).secretKey(key).build();
     }
 
     /**

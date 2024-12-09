@@ -1,7 +1,6 @@
 package com.phoenix.devops.utils;
 
 import cn.hutool.core.util.ArrayUtil;
-import com.phoenix.devops.model.common.CaptchaBaseMapEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
@@ -16,44 +15,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author wjj70
+ */
 @Slf4j
 public final class ImageUtils {
     /**
      * 滑块底图
      */
-    private static final Map<String, String> originalCacheMap = new ConcurrentHashMap<>();
+    private static final Map<String, String> ORIGINAL_CACHE_MAP = new ConcurrentHashMap<>();
     /**
      * 滑块
      */
-    private static final Map<String, String> slidingBlockCacheMap = new ConcurrentHashMap<>();
-
-    private static final Map<String, String[]> fileNameMap = new ConcurrentHashMap<>();
+    private static final Map<String, String> SLIDING_BLOCK_CACHE_MAP = new ConcurrentHashMap<>();
 
     static {
         // 滑动拼图
-        originalCacheMap.putAll(getResourcesImagesFile("images/jigsaw/original"));
-        slidingBlockCacheMap.putAll(getResourcesImagesFile("images/jigsaw/slidingBlock"));
-        fileNameMap.put(CaptchaBaseMapEnum.ORIGINAL.getCodeValue(), originalCacheMap.keySet().toArray(new String[0]));
-        fileNameMap.put(CaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue(), slidingBlockCacheMap.keySet().toArray(new String[0]));
-        log.info("初始化底图:{}", JsonUtil.toJSONString(fileNameMap));
+        ORIGINAL_CACHE_MAP.putAll(fetchResourcesImagesFile("images/original"));
+        SLIDING_BLOCK_CACHE_MAP.putAll(fetchResourcesImagesFile("images/slidingBlock"));
     }
 
-    public static BufferedImage getOriginal() {
-        String[] strings = fileNameMap.get(CaptchaBaseMapEnum.ORIGINAL.getCodeValue());
-        if (ArrayUtil.isEmpty(strings)) {
-            return null;
+    public static BufferedImage fetchOriginalImage() {
+        String[] images = ORIGINAL_CACHE_MAP.keySet().toArray(new String[0]);
+        if (ArrayUtil.isEmpty(images)) {
+            throw new IllegalArgumentException("指定路径下不存在原图片!");
         }
-        Integer randomInt = RandomUtils.getRandomInt(0, strings.length);
-        return getBase64StrToImage(originalCacheMap.get(strings[randomInt]));
+        Integer randomInt = RandomUtils.randomInt(0, images.length);
+        return base64StrToImage(ORIGINAL_CACHE_MAP.get(images[randomInt]));
     }
 
-    public static String getSlidingBlock() {
-        String[] strings = fileNameMap.get(CaptchaBaseMapEnum.SLIDING_BLOCK.getCodeValue());
-        if (ArrayUtil.isEmpty(strings)) {
-            return null;
+    public static String fetchSlidingBlockImage() {
+        String[] images = SLIDING_BLOCK_CACHE_MAP.keySet().toArray(new String[0]);
+        if (ArrayUtil.isEmpty(images)) {
+            throw new IllegalArgumentException("指定路径下不存在滑块图片!");
         }
-        Integer randomInt = RandomUtils.getRandomInt(0, strings.length);
-        return slidingBlockCacheMap.get(strings[randomInt]);
+        Integer randomInt = RandomUtils.randomInt(0, images.length);
+        return SLIDING_BLOCK_CACHE_MAP.get(images[randomInt]);
     }
 
     /**
@@ -62,20 +59,20 @@ public final class ImageUtils {
      * @param base64String base64String
      * @return 图片
      */
-    public static BufferedImage getBase64StrToImage(String base64String) {
-        try {
-            Base64.Decoder decoder = Base64.getDecoder();
-            byte[] bytes = decoder.decode(base64String);
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
-            return ImageIO.read(inputStream);
+    public static BufferedImage base64StrToImage(String base64String) {
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] bytes = decoder.decode(base64String);
+        BufferedImage bufferedImage = null;
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+            bufferedImage = ImageIO.read(inputStream);
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
-        return null;
+        return bufferedImage;
     }
 
 
-    private static Map<String, String> getResourcesImagesFile(String path) {
+    private static Map<String, String> fetchResourcesImagesFile(String path) {
         // 默认提供六张底图
         Map<String, String> imgMap = new HashMap<>();
         for (long i = 1; i <= ResourceFileUtil.count(path); i++) {

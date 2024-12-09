@@ -7,6 +7,7 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.phoenix.devops.common.SelectCommon;
 import com.phoenix.devops.entity.SysAccount;
 import com.phoenix.devops.entity.SysAccountRole;
+import com.phoenix.devops.lang.Constant;
 import com.phoenix.devops.lang.IPage;
 import com.phoenix.devops.mapper.SysAccountMapper;
 import com.phoenix.devops.model.vo.PasswordVO;
@@ -45,6 +46,11 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     }
 
     @Override
+    public SysAccount fetchSysAccountWithRelationsByUsername(String username){
+        return mapper.selectOneWithRelationsByQuery(QueryWrapper.create().select(SYS_ACCOUNT.NOT_PASSWORD_COLUMNS).from(SYS_ACCOUNT).where(SYS_ACCOUNT.USERNAME.eq(username)));
+    }
+
+    @Override
     public SysAccount fetchAccountByUsername(String username) {
         return this.getOne(QueryWrapper.create().select(SYS_ACCOUNT.DEFAULT_COLUMNS).from(SYS_ACCOUNT).where(SYS_ACCOUNT.USERNAME.eq(username)));
     }
@@ -58,7 +64,7 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
     @Override
     public Long addSysAccount(SysAccountVO accountVO) {
         SysAccount account = BeanUtil.copyProperties(accountVO, SysAccount.class);
-        // account.setPassword(passwordEncoder.encode(Constant.PASSWORD));
+        account.setPassword(passwordEncoder.encode(Constant.PASSWORD));
         if (!this.save(account)) {
             throw new IllegalArgumentException("添加账户信息失败");
         }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- *  服务层。
+ * 服务层。
  *
  * @author wjj-phoenix
  * @since 2024-11-20
@@ -24,6 +24,14 @@ public interface ISysAccountService extends IService<SysAccount> {
      * @return 账户信息
      */
     List<SysAccount> fetchAllAccounts();
+
+    /**
+     * 根据用户名查询关联信息
+     *
+     * @param username 用户名
+     * @return 用户信息
+     */
+    SysAccount fetchSysAccountWithRelationsByUsername(String username);
 
     /**
      * 更具用户名查询用户信息

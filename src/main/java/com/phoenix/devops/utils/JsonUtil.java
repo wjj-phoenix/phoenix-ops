@@ -3,9 +3,11 @@ package com.phoenix.devops.utils;
 import com.phoenix.devops.model.vo.PointVO;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author wjj-phoenix
@@ -29,16 +31,18 @@ public class JsonUtil {
     }
 
     public static PointVO parseObject(String text, Class<PointVO> clazz) {
-        if (text == null) {
-            return null;
-        }
+        Objects.requireNonNull(text, "输入文本不能为空");
 
         try {
-            PointVO ret = clazz.newInstance();
+            Constructor<PointVO> constructor = clazz.getConstructor();
+            PointVO ret = constructor.newInstance();
             return ret.parse(text);
-        } catch (Exception ex) {
-            log.error("json解析异常", ex);
-
+        } catch (NoSuchMethodException e) {
+            log.error("类 {} 没有无参构造函数: {}", clazz.getName(), e.getMessage());
+        } catch (InstantiationException | IllegalAccessException e) {
+            log.error("创建对象失败: {}", e.getMessage());
+        } catch (Exception e) {
+            log.error("解析 JSON 异常, 输入文本: {}, 异常信息: {}", text, e.getMessage());
         }
         return null;
     }

@@ -24,8 +24,8 @@ public final class AESUtil {
      *
      * @return 随机key
      */
-    public static String getKey() {
-        return RandomUtils.getRandomString(16);
+    public static String fetchKey() {
+        return RandomUtils.randomStr(16);
     }
 
 
@@ -73,8 +73,8 @@ public final class AESUtil {
      * @throws Exception e
      */
     public static byte[] aesEncryptToBytes(String content, String encryptKey) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
-        kgen.init(128);
+        KeyGenerator kGen = KeyGenerator.getInstance("AES");
+        kGen.init(128);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(encryptKey.getBytes(), "AES"));
 

@@ -16,5 +16,5 @@ public interface ContentParser {
      * @param operateLog 注解
      * @return 获得的结果
      */
-    public Object getResult(JoinPoint joinPoint, RecordLog logger, String tableId);
+    Object getResult(JoinPoint joinPoint, RecordLog logger, String tableId);
 }

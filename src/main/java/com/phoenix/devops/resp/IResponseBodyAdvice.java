@@ -28,9 +28,10 @@ public class IResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (body instanceof Result) {
             return body;
         }
-        // 如果返回值是String类型，那就手动把Result对象转换成JSON字符串
-        ObjectMapper objectMapper = new ObjectMapper();
+
         if (body instanceof String) {
+            // 如果返回值是String类型，那就手动把Result对象转换成JSON字符串
+            ObjectMapper objectMapper = new ObjectMapper();
             try {
                 return objectMapper.writeValueAsString(Result.success(body));
             } catch (JsonProcessingException e) {

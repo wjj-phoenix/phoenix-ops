@@ -1,6 +1,7 @@
 package com.phoenix.devops.model.vo;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * @author wjj70
+ */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PointVO {
@@ -36,9 +41,7 @@ public class PointVO {
                 .replaceFirst("\\{", "")
                 .replaceFirst("}", "")
                 .replaceAll("\"", "")
-                .split(",")).forEach(item -> {
-            m.put(item.split(":")[0], item.split(":")[1]);
-        });
+                .split(",")).forEach(item -> m.put(item.split(":")[0], item.split(":")[1]));
         // PointVO d = new PointVO();
         setX(Double.valueOf(String.valueOf(m.getOrDefault("x", "0"))).intValue());
         setY(Double.valueOf(String.valueOf(m.getOrDefault("y", "0"))).intValue());

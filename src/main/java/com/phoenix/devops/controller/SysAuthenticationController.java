@@ -5,10 +5,11 @@ import com.phoenix.devops.model.LoginInfo;
 import com.phoenix.devops.service.ISysAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
 import jakarta.annotation.Resource;
+import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,11 +30,11 @@ public class SysAuthenticationController {
 
     @PostMapping("/login")
     @Operation(summary = "登录接口，隐含两个参数code和key")
-    @Parameters({
+   /*  @Parameters({
             @Parameter(name = "code", description = "验证码"),
             @Parameter(name = "key", description = "随机ID"),
-    })
-    public Pair<String, String> login(@RequestBody LoginInfo info, HttpServletResponse response) {
+    }) */
+    public Pair<String, String> login(@Validated @RequestBody LoginInfo info, HttpServletResponse response) {
         return service.login(info, response);
     }
 
@@ -43,5 +44,17 @@ public class SysAuthenticationController {
         return service.logout(response);
     }
 
+    @GetMapping("/info")
+    @Operation(summary = "获取个人信息")
+    public String info(HttpServletResponse response) {
+        return service.logout(response);
+    }
 
+    @GetMapping("/get-id-by-username")
+    @PermitAll
+    @Operation(summary = "使用租户名，获得租户编号", description = "登录界面，根据用户的租户名，获得租户编号")
+    @Parameter(name = "username", description = "租户名", required = true, example = "1024")
+    public Long getTenantIdByName(@RequestParam("username") String username) {
+        return service.fetchSysAccountIdByUsername(username);
+    }
 }

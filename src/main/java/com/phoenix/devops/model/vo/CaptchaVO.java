@@ -1,11 +1,20 @@
 package com.phoenix.devops.model.vo;
 
+import lombok.*;
+
 import java.awt.*;
 import java.io.Serializable;
 import java.util.List;
 
-public class CaptchaVO implements Serializable {
 
+/**
+ * @author wjj70
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CaptchaVO implements Serializable {
     /**
      * 验证码id(后台申请)
      */
@@ -90,157 +99,5 @@ public class CaptchaVO implements Serializable {
     public void resetClientFlag() {
         this.browserInfo = null;
         this.clientUid = null;
-    }
-
-    public String getCaptchaId() {
-        return captchaId;
-    }
-
-    public void setCaptchaId(String captchaId) {
-        this.captchaId = captchaId;
-    }
-
-    public String getProjectCode() {
-        return projectCode;
-    }
-
-    public void setProjectCode(String projectCode) {
-        this.projectCode = projectCode;
-    }
-
-    public String getCaptchaType() {
-        return captchaType;
-    }
-
-    public void setCaptchaType(String captchaType) {
-        this.captchaType = captchaType;
-    }
-
-    public String getCaptchaOriginalPath() {
-        return captchaOriginalPath;
-    }
-
-    public void setCaptchaOriginalPath(String captchaOriginalPath) {
-        this.captchaOriginalPath = captchaOriginalPath;
-    }
-
-    public String getCaptchaFontType() {
-        return captchaFontType;
-    }
-
-    public void setCaptchaFontType(String captchaFontType) {
-        this.captchaFontType = captchaFontType;
-    }
-
-    public Integer getCaptchaFontSize() {
-        return captchaFontSize;
-    }
-
-    public void setCaptchaFontSize(Integer captchaFontSize) {
-        this.captchaFontSize = captchaFontSize;
-    }
-
-    public String getOriginalImageBase64() {
-        return originalImageBase64;
-    }
-
-    public void setOriginalImageBase64(String originalImageBase64) {
-        this.originalImageBase64 = originalImageBase64;
-    }
-
-    public PointVO getPoint() {
-        return point;
-    }
-
-    public void setPoint(PointVO point) {
-        this.point = point;
-    }
-
-    public String getJigsawImageBase64() {
-        return jigsawImageBase64;
-    }
-
-    public void setJigsawImageBase64(String jigsawImageBase64) {
-        this.jigsawImageBase64 = jigsawImageBase64;
-    }
-
-    public List<String> getWordList() {
-        return wordList;
-    }
-
-    public void setWordList(List<String> wordList) {
-        this.wordList = wordList;
-    }
-
-    public List<Point> getPointList() {
-        return pointList;
-    }
-
-    public void setPointList(List<Point> pointList) {
-        this.pointList = pointList;
-    }
-
-    public String getPointJson() {
-        return pointJson;
-    }
-
-    public void setPointJson(String pointJson) {
-        this.pointJson = pointJson;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public Boolean getResult() {
-        return result;
-    }
-
-    public void setResult(Boolean result) {
-        this.result = result;
-    }
-
-    public String getCaptchaVerification() {
-        return captchaVerification;
-    }
-
-    public void setCaptchaVerification(String captchaVerification) {
-        this.captchaVerification = captchaVerification;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public String getClientUid() {
-        return clientUid;
-    }
-
-    public void setClientUid(String clientUid) {
-        this.clientUid = clientUid;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    public void setTs(Long ts) {
-        this.ts = ts;
-    }
-
-    public String getBrowserInfo() {
-        return browserInfo;
-    }
-
-    public void setBrowserInfo(String browserInfo) {
-        this.browserInfo = browserInfo;
     }
 }
