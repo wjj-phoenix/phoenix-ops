@@ -84,4 +84,6 @@ public interface ISysAccountService extends IService<SysAccount> {
      * @return true|false
      */
     Boolean modSysAccountPassword(@NotNull(message = "账户主键ID不能为空") Long id, @NotNull(message = "密码信息不能为空") PasswordVO passwordVO);
+
+    void updateAccountLogin(Long userId, String address);
 }

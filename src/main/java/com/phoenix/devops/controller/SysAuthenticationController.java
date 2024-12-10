@@ -1,7 +1,7 @@
 package com.phoenix.devops.controller;
 
-import cn.hutool.core.lang.Pair;
 import com.phoenix.devops.model.LoginInfo;
+import com.phoenix.devops.model.vo.LoginRespVO;
 import com.phoenix.devops.service.ISysAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ public class SysAuthenticationController {
             @Parameter(name = "code", description = "验证码"),
             @Parameter(name = "key", description = "随机ID"),
     }) */
-    public Pair<String, String> login(@Validated @RequestBody LoginInfo info, HttpServletResponse response) {
+    public LoginRespVO login(@Validated @RequestBody LoginInfo info, HttpServletResponse response) {
         return service.login(info, response);
     }
 

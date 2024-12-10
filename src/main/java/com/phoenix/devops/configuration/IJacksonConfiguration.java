@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -60,10 +58,10 @@ public class IJacksonConfiguration {
         objectMapper.registerModule(javaTimeModule);
 
         // 解决 Long 型id传到前端精度丢失的问题: https://blog.csdn.net/czx2018/article/details/109024482
-        SimpleModule simpleModule = new SimpleModule();
+        // SimpleModule simpleModule = new SimpleModule();
         // JSON Long ==> String
-        simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
-        objectMapper.registerModule(simpleModule);
+        // simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
+        // objectMapper.registerModule(simpleModule);
 
         converter.setObjectMapper(objectMapper);
         return converter;

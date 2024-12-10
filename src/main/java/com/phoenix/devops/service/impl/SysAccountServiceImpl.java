@@ -116,4 +116,9 @@ public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAcco
         }
         return true;
     }
+
+    @Override
+    public void updateAccountLogin(Long userId, String address) {
+
+    }
 }

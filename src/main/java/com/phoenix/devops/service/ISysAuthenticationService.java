@@ -1,8 +1,8 @@
 package com.phoenix.devops.service;
 
-import cn.hutool.core.lang.Pair;
 import com.phoenix.devops.entity.SysAccount;
 import com.phoenix.devops.model.LoginInfo;
+import com.phoenix.devops.model.vo.LoginRespVO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +20,7 @@ public interface ISysAuthenticationService extends UserDetailsService {
      * @param info 登录输入信息
      * @return 登录成功的响应
      */
-    Pair<String, String> login(LoginInfo info, HttpServletResponse response);
+    LoginRespVO login(LoginInfo info, HttpServletResponse response);
 
     /**
      * 退出认证

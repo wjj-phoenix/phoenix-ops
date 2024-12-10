@@ -1,6 +1,5 @@
 package com.phoenix.devops.configuration;
 
-import com.phoenix.devops.filter.ImageCodeValidateFilter;
 import com.phoenix.devops.lang.Constant;
 import com.phoenix.devops.security.IAccessDeniedHandler;
 import com.phoenix.devops.security.IAuthenticationEntryPoint;
@@ -34,10 +33,6 @@ public class ISecurityConfiguration {
     @Resource
     private ISysAuthenticationService userDetailService;
 
-    // 自定义过滤器（图形验证码校验）
-    @Resource
-    private ImageCodeValidateFilter imageCodeValidateFilter;
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests((authorizeHttpRequests) -> {
@@ -65,7 +60,7 @@ public class ISecurityConfiguration {
 
         // 自定义权限拦截器JWT过滤器
         httpSecurity.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
-        httpSecurity.addFilterBefore(imageCodeValidateFilter, authenticationTokenFilter.getClass());
+        // httpSecurity.addFilterBefore(imageCodeValidateFilter, authenticationTokenFilter.getClass());
         httpSecurity.userDetailsService(userDetailService);
         return httpSecurity.build();
     }
